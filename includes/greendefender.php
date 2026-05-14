@@ -1,6 +1,3 @@
-<?php
-// 綠盾衛士 AI 聊天機器人
-?>
 <style>
 #greendefender-fab {
     position: fixed !important;
@@ -166,7 +163,6 @@
     box-shadow: 0 4px 12px rgba(93,138,102,0.2) !important;
 }
 
-/* 對話氣泡核心優化 */
 .greendefender-message {
     display:flex !important;
     align-items:flex-end !important;
