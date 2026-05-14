@@ -1,20 +1,4 @@
 <?php
-session_start(); // 啟動會話以保存用戶暱稱
-
-// 處理暱稱提交
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nickname'])) {
-    $nickname = trim($_POST['nickname']);
-    if (!empty($nickname)) {
-        $_SESSION['quiz_nickname'] = htmlspecialchars($nickname);
-        // 防止表單重複提交
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-}
-
-// 檢查是否已有暱稱
-$has_nickname = isset($_SESSION['quiz_nickname']) && !empty($_SESSION['quiz_nickname']);
-
 // 引入資料庫連線
 include 'db.php';
 ?>
@@ -27,93 +11,9 @@ include 'db.php';
     <meta charset="UTF-8">
     <!-- 行動裝置適應 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDG12 知識測驗 - 永續生活家學習平台</title>
+    <title>SDG12 知識測驗</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        /* 暱稱輸入模態框樣式 */
-        .nickname-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .modal-content h2 {
-            color: #2e7d32;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        
-        .modal-content p {
-            color: #555;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-        
-        .nickname-input {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        
-        .nickname-input:focus {
-            outline: none;
-            border-color: #4caf50;
-        }
-        
-        .start-btn {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        
-        .start-btn:hover {
-            background-color: #388e3c;
-        }
-        
-        /* 測驗內容樣式 (隱藏直到輸入暱稱) */
-        .quiz-content {
-            display: <?php echo $has_nickname ? 'block' : 'none'; ?>;
-        }
-        
-        .welcome-message {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #e8f5e9;
-            border-radius: 10px;
-            color: #2e7d32;
-            font-size: 18px;
-        }
-
         /* 網站最外層容器，限制最大寬度並置中 */
         .container {
             max-width: 1200px;
@@ -648,212 +548,151 @@ include 'db.php';
 </head>
 <body>
 
-    <!-- 暱稱輸入模態框 -->
-    <?php if (!$has_nickname): ?>
-    <div class="nickname-modal" id="nicknameModal">
-        <div class="modal-content">
-            <h2>🌱 SDG12 知識挑戰賽</h2>
-            <p>歡迎來到永續生活家知識測驗！<br>請輸入你的暱稱，開始你的綠色挑戰之旅吧！</p>
-            <form method="POST" id="nicknameForm">
-                <input type="text" class="nickname-input" name="nickname" id="nicknameInput" 
-                       placeholder="請輸入你的暱稱" required autocomplete="off">
-                <button type="submit" class="start-btn">開始挑戰 🚀</button>
-            </form>
+<!-- 導覽列 -->
+<?php include 'includes/header.php'; ?>
+
+<div class="container">
+    <!-- 首頁 -->
+    <div id="homeScreen">
+        <div class="hero-section fade-in">
+            <div class="hero-icon">🎮</div>
+            <h1 class="hero-title">SDG12 永續實踐家測驗</h1>
+            <p class="hero-subtitle">
+                三大獨立挑戰模式，全方位鍛鍊你的永續直覺。<br>
+                現在就開啟測驗，登入榮譽榜，用知識守護我們的地球！
+            </p>
+        </div>
+
+        <!-- 三種遊戲模式 -->
+        <div class="mode-grid">
+            <div class="mode-card">
+                <span class="mode-icon">📝</span>
+                <h3>永續大會考</h3>
+                <p>挑戰知識極限，成為環保領航員。</p>
+                <button class="btn-primary" onclick="openNameModal('choice')">開始挑戰</button>
+            </div>
+            <div class="mode-card">
+                <span class="mode-icon">⭕❌</span>
+                <h3>迷思快閃賽</h3>
+                <p>直覺反應快問快答，破除消費偽觀念。</p>
+                <button class="btn-primary" onclick="openNameModal('tf')">開始挑戰</button>
+            </div>
+            <div class="mode-card">
+                <span class="mode-icon">🎬</span>
+                <h3>時光放映室</h3>
+                <p>走進真實情境，投出改變未來的關鍵票。</p>
+                <button class="btn-primary" onclick="openNameModal('video')">開始挑戰</button>
+            </div>
+        </div>
+
+        <!-- 功能按鈕 -->
+        <div style="display:flex; flex-direction:column; gap:15px; justify-content:center; align-items:center; margin-bottom:40px;">
+            <button class="btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
+            <button class="btn-secondary" onclick="location.href='user.php'">返回</button>
         </div>
     </div>
-    <?php endif; ?>
 
-    <!-- 測驗主要內容 -->
-    <div class="quiz-content">
-        <!-- 歡迎訊息 (顯示用戶暱稱) -->
-        <?php if ($has_nickname): ?>
-        <div class="welcome-message">
-            嗨，<strong><?php echo $_SESSION['quiz_nickname']; ?></strong>！準備好接受SDG12永續消費與生產的知識挑戰了嗎？
+    <!-- 遊戲畫面 -->
+    <div id="gameScreen" style="display:none;">
+        <div class="game-area-new fade-in">
+            <!-- 進度條 -->
+            <div class="progress-bar-new">
+                <div class="progress-fill-new" id="progressFill"></div>
+            </div>
+            <!-- 題目資訊：第幾題 / 總題數 / 得分 -->
+            <div class="question-header">
+                <span style="color:#8B6914;">第 <span id="currentQ">1</span> / <span id="totalQ">5</span> 題</span>
+                <span style="color:#2A2A2A;">得分：<span id="currentScore">0</span></span>
+            </div>
+            
+            <!-- YouTube 影片嵌入容器 -->
+            <div id="videoContainer" class="video-container" style="display:none;">
+                <iframe 
+                    id="youtubeFrame" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div id="videoSourceText" class="video-source" style="display:none;"></div>
+
+            <!-- 題目 -->
+            <div class="question-text-new" id="questionText"></div>
+            <!-- 選項 -->
+            <div class="options-grid-new" id="optionsGrid"></div>
+            
+            <!-- 解析區 -->
+            <div id="explanationBox" class="explanation-box">
+                <div class="explanation-title">💡 解析</div>
+                <div class="explanation-text" id="explanationText"></div>
+            </div>
         </div>
-        <?php endif; ?>
+        <div style="text-align:center; margin-bottom:40px;">
+            <button class="btn-secondary" onclick="backToHub()">返回</button>
+        </div>
+    </div>
 
-        <!-- 導覽列 -->
-        <?php include 'includes/header.php'; ?>
+    <!-- 結果畫面 -->
+    <div id="resultScreen" style="display:none;">
+        <div class="game-area-new result-area-new fade-in">
+            <div class="result-icon-new" id="resultIcon">🏆</div>
+            <div class="result-title-new" id="resultTitle">測驗完成！</div>
+            <div class="result-score-new" id="resultScore">0 / 100 分</div>
+            <div class="result-desc-new" id="resultDesc"></div>
 
-        <div class="container">
-            <!-- 首頁 -->
-            <div id="homeScreen">
-                <div class="hero-section fade-in">
-                    <div class="hero-icon">🎮</div>
-                    <h1 class="hero-title">SDG12 永續實踐家測驗</h1>
-                    <p class="hero-subtitle">
-                        三大獨立挑戰模式，全方位鍛鍊你的永續直覺。<br>
-                        現在就開啟測驗，登入榮譽榜，用知識守護我們的地球！
-                    </p>
-                </div>
-
-                <!-- 三種遊戲模式 -->
-                <div class="mode-grid">
-                    <div class="mode-card">
-                        <span class="mode-icon">📝</span>
-                        <h3>永續大會考</h3>
-                        <p>挑戰知識極限，成為環保領航員。</p>
-                        <button class="btn-primary" onclick="startGame('choice')">開始挑戰</button>
-                    </div>
-                    <div class="mode-card">
-                        <span class="mode-icon">⭕❌</span>
-                        <h3>迷思快閃賽</h3>
-                        <p>直覺反應快問快答，破除消費偽觀念。</p>
-                        <button class="btn-primary" onclick="startGame('tf')">開始挑戰</button>
-                    </div>
-                    <div class="mode-card">
-                        <span class="mode-icon">🎬</span>
-                        <h3>時光放映室</h3>
-                        <p>走進真實情境，投出改變未來的關鍵票。</p>
-                        <button class="btn-primary" onclick="startGame('video')">開始挑戰</button>
-                    </div>
-                </div>
-
-                <!-- 功能按鈕 -->
-                <div style="display:flex; flex-direction:column; gap:15px; justify-content:center; align-items:center; margin-bottom:40px;">
-                    <button class="btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
-                    <button class="btn-secondary" onclick="location.href='user.php'">返回</button>
-                </div>
-            </div>
-
-            <!-- 遊戲畫面 -->
-            <div id="gameScreen" style="display:none;">
-                <div class="game-area-new fade-in">
-                    <!-- 進度條 -->
-                    <div class="progress-bar-new">
-                        <div class="progress-fill-new" id="progressFill"></div>
-                    </div>
-                    <!-- 題目資訊：第幾題 / 總題數 / 得分 -->
-                    <div class="question-header">
-                        <span style="color:#8B6914;">第 <span id="currentQ">1</span> / <span id="totalQ">5</span> 題</span>
-                        <span style="color:#2A2A2A;">得分：<span id="currentScore">0</span></span>
-                    </div>
-                    
-                    <!-- YouTube 影片嵌入容器 -->
-                    <div id="videoContainer" class="video-container" style="display:none;">
-                        <iframe 
-                            id="youtubeFrame" 
-                            width="100%" 
-                            height="100%" 
-                            frameborder="0" 
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                    <div id="videoSourceText" class="video-source" style="display:none;"></div>
-
-                    <!-- 題目 -->
-                    <div class="question-text-new" id="questionText"></div>
-                    <!-- 選項 -->
-                    <div class="options-grid-new" id="optionsGrid"></div>
-                    
-                    <!-- 解析區 -->
-                    <div id="explanationBox" class="explanation-box">
-                        <div class="explanation-title">💡 解析</div>
-                        <div class="explanation-text" id="explanationText"></div>
-                    </div>
-                </div>
-                <div style="text-align:center; margin-bottom:40px;">
-                    <button class="btn-secondary" onclick="backToHub()">返回</button>
-                </div>
-            </div>
-
-            <!-- 結果畫面 -->
-            <div id="resultScreen" style="display:none;">
-                <div class="game-area-new result-area-new fade-in">
-                    <div class="result-icon-new" id="resultIcon">🏆</div>
-                    <div class="result-title-new" id="resultTitle">測驗完成！</div>
-                    <div class="result-score-new" id="resultScore">0 / 100 分</div>
-                    <div class="result-desc-new" id="resultDesc"></div>
-
-                    <div style="display:flex; gap:15px; justify-content:center;">
-                        <button class="btn-primary" onclick="restartGame()">再測一次</button>
-                        <button class="btn-secondary" onclick="backToHub()">返回</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 排行榜畫面 -->
-            <div id="leaderboardScreen" style="display:none;">
-                <div class="leaderboard-container fade-in">
-                    <div class="hero-section" style="min-height: unset; padding: 35px; margin-bottom: 40px;">
-                        <div class="hero-icon" style="font-size: 50px; margin-bottom: 15px;">🥇</div>
-                        <h1 class="hero-title" style="font-size: 40px; margin-bottom: 10px;">榮譽排行榜</h1>
-                        <p class="hero-subtitle" style="font-size: 18px; margin-bottom: 0;">爭奪「SDG12 永續知識王」！</p>
-                    </div>
-
-                    <!-- 排行榜標籤頁 -->
-                    <div class="leaderboard-tabs">
-                        <button class="leaderboard-tab active" onclick="switchTab('choice')">📝 永續大會考</button>
-                        <button class="leaderboard-tab" onclick="switchTab('tf')">⭕❌ 迷思快閃賽</button>
-                        <button class="leaderboard-tab" onclick="switchTab('video')">🎬 時光放映室</button>
-                    </div>
-
-                    <!-- 排行榜列表 -->
-                    <div class="leaderboard-list" id="leaderboardList"></div>
-                    
-                    <div style="text-align:center; margin-top: 40px;">
-                        <button class="btn-secondary" onclick="backToHub()">返回</button>
-                    </div>
-                </div>
+            <div style="display:flex; gap:15px; justify-content:center;">
+                <button class="btn-primary" onclick="restartGame()">再測一次</button>
+                <button class="btn-secondary" onclick="backToHub()">返回</button>
             </div>
         </div>
     </div>
+
+    <!-- 排行榜畫面 -->
+    <div id="leaderboardScreen" style="display:none;">
+        <div class="leaderboard-container fade-in">
+            <div class="hero-section" style="min-height: unset; padding: 35px; margin-bottom: 40px;">
+                <div class="hero-icon" style="font-size: 50px; margin-bottom: 15px;">🥇</div>
+                <h1 class="hero-title" style="font-size: 40px; margin-bottom: 10px;">榮譽排行榜</h1>
+                <p class="hero-subtitle" style="font-size: 18px; margin-bottom: 0;">爭奪「SDG12 永續知識王」！</p>
+            </div>
+
+            <!-- 排行榜標籤頁 -->
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" onclick="switchTab('choice')">📝 永續大會考</button>
+                <button class="leaderboard-tab" onclick="switchTab('tf')">⭕❌ 迷思快閃賽</button>
+                <button class="leaderboard-tab" onclick="switchTab('video')">🎬 時光放映室</button>
+            </div>
+
+            <!-- 排行榜列表 -->
+            <div class="leaderboard-list" id="leaderboardList"></div>
+            
+            <div style="text-align:center; margin-top: 40px;">
+                <button class="btn-secondary" onclick="backToHub()">返回</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- 名字輸入彈窗 -->
 <div id="nameModal">
     <div class="name-modal-box">
-        <h3>🎉 測驗完成！</h3>
-        <p>請輸入你的名字／綽號</p>
+        <h3>請輸入你的暱稱</h3>
+        <p>以記錄你的挑戰成績</p>
         <input type="text" id="playerNameInput" placeholder="請輸入暱稱" autocomplete="off">
         <div class="name-modal-buttons">
             <button class="name-modal-btn cancel" onclick="closeNameModal()">取消</button>
-            <button class="name-modal-btn.confirm" onclick="savePlayerName()">確定</button>
+            <button class="name-modal-btn confirm" onclick="savePlayerName()">確定</button>
         </div>
     </div>
 </div>
 
-<!-- 網站頁腳 -->
-<?php include_once 'greendefender.php'; ?>
+<!-- 頁尾 -->
+<?php include 'includes/footer.php'; ?>
 
-<?php
-// 只有在首頁才顯示訪問人次
-if (basename($_SERVER['PHP_SELF']) === 'index.php') {
-    include_once 'db.php';
-    recordVisit($conn); // 記錄本次訪問
-    $total_visits = getTotalVisits($conn);
-    $conn->close();
-?>
-<div style="text-align:center; margin:10px 0;">
-    🌐 網站總訪問人次：<?php echo number_format($total_visits); ?>
-</div>
-<?php } ?>
-
-<div style="text-align:center; margin:10px 0;">
-    © 2026 SDG12 永續生活家學習平台
-</div>
-
-<script src="assets/js/modal.js"></script>
-
-<!-- 暱稱輸入驗證JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('nicknameForm');
-        const input = document.getElementById('nicknameInput');
-        
-        if (form && input) {
-            form.addEventListener('submit', function(e) {
-                if (input.value.trim() === '') {
-                    e.preventDefault();
-                    alert('請輸入你的暱稱！');
-                    input.focus();
-                }
-            });
-            input.focus();
-        }
-    });
-
 // ==========================
 // 1. 每月自動清除排行榜
 // 功能：每個月1號自動清空排行榜資料
@@ -1047,21 +886,33 @@ const videoBank = [
 
 // ==========================
 // 4. 全域遊戲狀態
-// 紀錄目前模式、題目、分數、頁籤
+// 紀錄目前模式、題目、分數、頁籤、玩家暱稱
 // ==========================
 let currentMode='', currentQuestions=[], currentVideo=null, currentQIndex=0, currentScore=0, currentTab='choice';
+let playerName = ''; // 新增全域變數儲存玩家暱稱
 
 // ==========================
 // 5. 名字彈窗控制
 // ==========================
-function openNameModal(){document.getElementById('nameModal').style.display='flex';document.getElementById('playerNameInput').focus();}
-function closeNameModal(){document.getElementById('nameModal').style.display='none';}
+// 修改：開啟彈窗時傳入遊戲模式
+function openNameModal(mode){
+    playSound('click');
+    currentMode = mode; // 先儲存使用者選擇的模式
+    document.getElementById('nameModal').style.display='flex';
+    document.getElementById('playerNameInput').focus();
+}
+
+function closeNameModal(){
+    document.getElementById('nameModal').style.display='none';
+    currentMode = ''; // 使用者取消，清空模式
+}
+
 function savePlayerName(){
     let name=document.getElementById('playerNameInput').value.trim();
     if(!name){alert('請輸入名字');return;}
+    playerName = name; // 儲存玩家暱稱到全域變數
     closeNameModal(); 
-    autoSaveScore(name);      // 儲存排行榜
-    saveDetailedRecord(name); // 儲存詳細紀錄
+    startGame(currentMode); // 儲存名字後直接開始遊戲
 }
 
 // ==========================
@@ -1226,7 +1077,7 @@ function selectAnswer(s){
 
 // ==========================
 // 12. 顯示結果
-// 計算最終分數、評級、開啟名字輸入
+// 計算最終分數、評級、儲存成績
 // ==========================
 function showResult(){
     playSound('click');
@@ -1244,8 +1095,9 @@ function showResult(){
     document.getElementById('resultTitle').textContent=t;
     document.getElementById('resultDesc').textContent=d;
     
-    // 開啟名字彈窗
-    openNameModal();
+    // 遊戲結束後，直接使用之前儲存的 playerName 儲存成績
+    autoSaveScore(playerName);
+    saveDetailedRecord(playerName);
 }
 
 // ==========================
