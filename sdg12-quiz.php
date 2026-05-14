@@ -2,10 +2,13 @@
 // 引入資料庫連線
 include 'db.php';
 
-// 開啟錯誤顯
+// 開啟錯誤顯示
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// 記錄本次訪問
+recordVisit($conn);
 
 // 處理成績提交 (AJAX 方式)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_score') {
@@ -19,10 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     if (!empty($nickname) && $total_questions > 0) {
         // 準備SQL語句防止SQL注入
-       if (!$stmt) {
-    echo json_encode(['success' => false, 'message' => 'SQL準備失敗: ' . $conn->error]);
-    exit;
-}
+        $stmt = $conn->prepare("INSERT INTO quiz_scores (nickname, mode, score, total_questions, correct_answers) VALUES (?, ?, ?, ?, ?)");
+        
+        if (!$stmt) {
+            echo json_encode(['success' => false, 'message' => 'SQL準備失敗: ' . $conn->error]);
+            exit;
+        }
+        
         $stmt->bind_param("ssiii", $nickname, $mode, $score, $total_questions, $correct_answers);
         
         if ($stmt->execute()) {
@@ -66,9 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     echo json_encode($leaderboard);
     exit;
 }
-
-// 預設頁面顯示
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -271,9 +274,9 @@ $conn->close();
     padding: 50px;
     box-shadow: 0 12px 45px rgba(0,0,0,0.07);
     margin-bottom: 40px;
-    max-width: 800px; /* 添加这行 */
-    margin-left: auto; /* 添加这行 */
-    margin-right: auto; /* 添加这行 */
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
         /* 進度條外框 */
         .progress-bar-new {
@@ -310,7 +313,7 @@ $conn->close();
     color: #2A2A2A;
     margin-bottom: 30px;
     line-height: 1.5;
-    text-align: center; /* 添加这行 */
+    text-align: center;
 }
         /* 選項按鈕網格 */
         .options-grid-new {
@@ -318,9 +321,9 @@ $conn->close();
     grid-template-columns: 1fr;
     gap: 15px;
     margin-bottom: 20px;
-    max-width: 600px; /* 添加这行 */
-    margin-left: auto; /* 添加这行 */
-    margin-right: auto; /* 添加这行 */
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
         /* 選項按鈕 */
         .option-btn-new {
@@ -334,7 +337,7 @@ $conn->close();
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
-    width: 100%; /* 添加这行 */
+    width: 100%;
 }
         /* 選項按鈕懸浮（未禁用時） */
         .option-btn-new:hover:not(:disabled) {
@@ -361,24 +364,15 @@ $conn->close();
 
         /* 解析區塊（預設隱藏） */
         .explanation-box {
-            background: linear-gradient(135deg, rgba(196,154,58,0.08), rgba(93,138,102,0.08));
-            border-radius: 18px;
-            padding: 25px;
-            margin-top: 25px;
-            border-left: 5px solid #E4CB65;
-            display: none;
-        }
-        /* 解析顯示 */
-       .explanation-box {
     background: linear-gradient(135deg, rgba(196,154,58,0.08), rgba(93,138,102,0.08));
     border-radius: 18px;
     padding: 25px;
     margin-top: 25px;
     border-left: 5px solid #E4CB65;
     display: none;
-    max-width: 600px; /* 添加这行 */
-    margin-left: auto; /* 添加这行 */
-    margin-right: auto; /* 添加这行 */
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
         /* 解析標題 */
         .explanation-title {
@@ -1102,7 +1096,7 @@ function showQuestion(){
     document.getElementById('currentScore').textContent = currentScore;
     document.getElementById('progressFill').style.width = (currentQIndex/currentQuestions.length*100)+'%';
     document.getElementById('questionText').textContent = q.q;
-    document.getElementById('explanationBox').classList.remove('show');
+    document.getElementById('explanationBox').style.display = 'none';
 
     const vc = document.getElementById('videoContainer');
     const vst = document.getElementById('videoSourceText');
@@ -1144,7 +1138,6 @@ if(currentMode==='tf'){
         g.appendChild(b);
     });
 }
-    }
 }
 
 // ==========================
@@ -1154,7 +1147,6 @@ function selectAnswer(s){
     const q = currentQuestions[currentQIndex];
     const btns = document.querySelectorAll('.option-btn-new');
     btns.forEach(b=>b.disabled=true);
-    let c = false;
     let p = Math.floor(100/currentQuestions.length);
     if(currentQIndex === currentQuestions.length-1){
         p = 100 - (p*(currentQuestions.length-1));
@@ -1189,7 +1181,7 @@ if(currentMode==='tf'){
     }
 }
     document.getElementById('explanationText').textContent = q.exp;
-    document.getElementById('explanationBox').classList.add('show');
+    document.getElementById('explanationBox').style.display = 'block';
     
     setTimeout(()=>{
         currentQIndex++;
