@@ -956,13 +956,15 @@ function prepareGame(mode){
 }
 
 // ==========================
-// 輸入名字後 → 真正開始遊戲
+// 輸入名字後 → 真正開始遊戲（已修正題目載入問題）
 // ==========================
 function startGameAfterName(){
     currentQIndex = 0;
     currentScore = 0;
     currentVideo = null;
+    currentQuestions = []; // 清空舊題目
 
+    // 【修正點】：正確載入題目陣列
     if(currentMode==='choice'){
         currentQuestions = shuffleArray(choiceBank).slice(0,5);
     } else if(currentMode==='tf'){
@@ -972,6 +974,7 @@ function startGameAfterName(){
         currentQuestions = shuffleArray(currentVideo.questions).slice(0,2);
     }
 
+    // 【修正點】：確保總題數正確
     document.getElementById('totalQ').textContent = currentQuestions.length;
     showScreen('gameScreen');
     showQuestion();
@@ -981,6 +984,13 @@ function startGameAfterName(){
 // 顯示題目
 // ==========================
 function showQuestion(){
+    // 【防呆】：如果題目陣列為空，直接返回首頁
+    if (!currentQuestions || currentQuestions.length === 0) {
+        alert('題目載入失敗，請返回首頁重新開始！');
+        backToHub();
+        return;
+    }
+
     const q = currentQuestions[currentQIndex];
     document.getElementById('currentQ').textContent = currentQIndex+1;
     document.getElementById('currentScore').textContent = currentScore;
