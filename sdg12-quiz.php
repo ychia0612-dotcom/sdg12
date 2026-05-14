@@ -2,6 +2,11 @@
 // 引入資料庫連線
 include 'db.php';
 
+// 開啟錯誤顯
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // 處理成績提交 (AJAX 方式)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_score') {
     header('Content-Type: application/json');
@@ -14,7 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     if (!empty($nickname) && $total_questions > 0) {
         // 準備SQL語句防止SQL注入
-        $stmt = $conn->prepare("INSERT INTO quiz_scores (nickname, mode, score, total_questions, correct_answers) VALUES (?, ?, ?, ?, ?)");
+       if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'SQL準備失敗: ' . $conn->error]);
+    exit;
+}
         $stmt->bind_param("ssiii", $nickname, $mode, $score, $total_questions, $correct_answers);
         
         if ($stmt->execute()) {
@@ -258,12 +266,15 @@ $conn->close();
 
         /* 遊戲區域 */
         .game-area-new {
-            background: white;
-            border-radius: 32px;
-            padding: 50px;
-            box-shadow: 0 12px 45px rgba(0,0,0,0.07);
-            margin-bottom: 40px;
-        }
+    background: white;
+    border-radius: 32px;
+    padding: 50px;
+    box-shadow: 0 12px 45px rgba(0,0,0,0.07);
+    margin-bottom: 40px;
+    max-width: 800px; /* 添加这行 */
+    margin-left: auto; /* 添加这行 */
+    margin-right: auto; /* 添加这行 */
+}
         /* 進度條外框 */
         .progress-bar-new {
             width: 100%;
@@ -294,32 +305,37 @@ $conn->close();
         }
         /* 題目文字 */
         .question-text-new {
-            font-size: 24px;
-            font-weight: 800;
-            color: #2A2A2A;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
+    font-size: 24px;
+    font-weight: 800;
+    color: #2A2A2A;
+    margin-bottom: 30px;
+    line-height: 1.5;
+    text-align: center; /* 添加这行 */
+}
         /* 選項按鈕網格 */
         .options-grid-new {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    max-width: 600px; /* 添加这行 */
+    margin-left: auto; /* 添加这行 */
+    margin-right: auto; /* 添加这行 */
+}
         /* 選項按鈕 */
         .option-btn-new {
-            background: white;
-            border: 3px solid #E5E5E5;
-            padding: 20px 28px;
-            border-radius: 16px;
-            font-size: 17px;
-            font-weight: 600;
-            color: #2A2A2A;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
-        }
+    background: white;
+    border: 3px solid #E5E5E5;
+    padding: 20px 28px;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #2A2A2A;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%; /* 添加这行 */
+}
         /* 選項按鈕懸浮（未禁用時） */
         .option-btn-new:hover:not(:disabled) {
             border-color: #E4CB65;
@@ -353,9 +369,17 @@ $conn->close();
             display: none;
         }
         /* 解析顯示 */
-        .explanation-box.show {
-            display: block;
-        }
+       .explanation-box {
+    background: linear-gradient(135deg, rgba(196,154,58,0.08), rgba(93,138,102,0.08));
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 25px;
+    border-left: 5px solid #E4CB65;
+    display: none;
+    max-width: 600px; /* 添加这行 */
+    margin-left: auto; /* 添加这行 */
+    margin-right: auto; /* 添加这行 */
+}
         /* 解析標題 */
         .explanation-title {
             font-size: 18px;
@@ -1099,26 +1123,27 @@ function showQuestion(){
     const g = document.getElementById('optionsGrid');
     g.innerHTML = '';
 
-    if(currentMode==='tf'){
-        const t = document.createElement('button');
-        t.className = 'option-btn-new';
-        t.textContent = '⭕正確';
-        t.onclick = ()=>selectAnswer(true);
-        g.appendChild(t);
-        
-        const f = document.createElement('button');
-        f.className = 'option-btn-new';
-        f.textContent = '❌錯誤';
-        f.onclick = ()=>selectAnswer(false);
-        g.appendChild(f);
-    }else{
-        q.options.forEach((o,i)=>{
-            const b = document.createElement('button');
-            b.className = 'option-btn-new';
-            b.textContent = o;
-            b.onclick = ()=>selectAnswer(i);
-            g.appendChild(b);
-        });
+   // 统一所有模式的选项按鈕創建方式
+if(currentMode==='tf'){
+    // 是非題也使用與選擇題相同的按鈕樣式
+    const options = ['⭕ 正確', '❌ 錯誤'];
+    options.forEach((o,i)=>{
+        const b = document.createElement('button');
+        b.className = 'option-btn-new';
+        b.textContent = o;
+        b.onclick = ()=>selectAnswer(i === 0 ? true : false);
+        g.appendChild(b);
+    });
+}else{
+    // 選擇題和影片題
+    q.options.forEach((o,i)=>{
+        const b = document.createElement('button');
+        b.className = 'option-btn-new';
+        b.textContent = o;
+        b.onclick = ()=>selectAnswer(i);
+        g.appendChild(b);
+    });
+}
     }
 }
 
@@ -1137,31 +1162,32 @@ function selectAnswer(s){
     
     q.userSelected = s;
     q.isCorrect = (s === q.ans);
-
-    if(currentMode==='tf'){
-        c = s === q.ans;
-        if(c){
-            btns[s?0:1].classList.add('correct');
-            currentScore += p;
-            playSound('correct');
-        }else{
-            btns[s?0:1].classList.add('wrong');
-            btns[q.ans?0:1].classList.add('correct');
-            playSound('wrong');
-        }
+if(currentMode==='tf'){
+    // 修正是非題的按鈕索引對應
+    const selectedIndex = s ? 0 : 1;
+    const correctIndex = q.ans ? 0 : 1;
+    
+    if(q.isCorrect){
+        btns[selectedIndex].classList.add('correct');
+        currentScore += p;
+        playSound('correct');
     }else{
-        c = s === q.ans;
-        if(c){
-            btns[s].classList.add('correct');
-            currentScore += p;
-            playSound('correct');
-        }else{
-            btns[s].classList.add('wrong');
-            btns[q.ans].classList.add('correct');
-            playSound('wrong');
-        }
+        btns[selectedIndex].classList.add('wrong');
+        btns[correctIndex].classList.add('correct');
+        playSound('wrong');
     }
-
+}else{
+    // 選擇題和影片題
+    if(q.isCorrect){
+        btns[s].classList.add('correct');
+        currentScore += p;
+        playSound('correct');
+    }else{
+        btns[s].classList.add('wrong');
+        btns[q.ans].classList.add('correct');
+        playSound('wrong');
+    }
+}
     document.getElementById('explanationText').textContent = q.exp;
     document.getElementById('explanationBox').classList.add('show');
     
@@ -1211,6 +1237,8 @@ function saveScoreToDatabase(nickname, mode, score, total_questions, correct_ans
     syncStatus.className = 'sync-status';
     syncStatus.textContent = '正在同步成績到服務器...';
     
+    console.log('正在保存成績:', {nickname, mode, score, total_questions, correct_answers});
+    
     fetch(window.location.href, {
         method: 'POST',
         headers: {
@@ -1218,22 +1246,32 @@ function saveScoreToDatabase(nickname, mode, score, total_questions, correct_ans
         },
         body: `action=save_score&nickname=${encodeURIComponent(nickname)}&mode=${encodeURIComponent(mode)}&score=${score}&total_questions=${total_questions}&correct_answers=${correct_answers}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            syncStatus.className = 'sync-status sync-success';
-            syncStatus.textContent = '✅ 成績已成功同步到服務器！';
-        } else {
+    .then(response => {
+        console.log('服務器響應狀態:', response.status);
+        return response.text(); // 先獲取文本以便調試
+    })
+    .then(text => {
+        console.log('服務器返回內容:', text);
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                syncStatus.className = 'sync-status sync-success';
+                syncStatus.textContent = '✅ 成績已成功同步到服務器！';
+            } else {
+                syncStatus.className = 'sync-status sync-error';
+                syncStatus.textContent = '⚠️ 服務器同步失敗：' + data.message + '（成績已保存到本地）';
+            }
+        } catch (e) {
             syncStatus.className = 'sync-status sync-error';
-            syncStatus.textContent = '⚠️ 服務器同步失敗：' + data.message + '（成績已保存到本地）';
+            syncStatus.textContent = '⚠️ 數據解析錯誤：' + e.message + '（成績已保存到本地）';
         }
     })
     .catch(error => {
+        console.error('網絡錯誤:', error);
         syncStatus.className = 'sync-status sync-error';
         syncStatus.textContent = '⚠️ 網絡錯誤，成績已保存到本地，稍後會自動重試';
     });
 }
-
 // ==========================
 // 重新遊戲
 // ==========================
