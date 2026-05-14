@@ -569,19 +569,19 @@ include 'db.php';
                 <span class="mode-icon">📝</span>
                 <h3>永續大會考</h3>
                 <p>挑戰知識極限，成為環保領航員。</p>
-                <button class="btn-primary" onclick="openNameModal('choice')">開始挑戰</button>
+                <button class="btn-primary" onclick="prepareGame('choice')">開始挑戰</button>
             </div>
             <div class="mode-card">
                 <span class="mode-icon">⭕❌</span>
                 <h3>迷思快閃賽</h3>
                 <p>直覺反應快問快答，破除消費偽觀念。</p>
-                <button class="btn-primary" onclick="openNameModal('tf')">開始挑戰</button>
+                <button class="btn-primary" onclick="prepareGame('tf')">開始挑戰</button>
             </div>
             <div class="mode-card">
                 <span class="mode-icon">🎬</span>
                 <h3>時光放映室</h3>
                 <p>走進真實情境，投出改變未來的關鍵票。</p>
-                <button class="btn-primary" onclick="openNameModal('video')">開始挑戰</button>
+                <button class="btn-primary" onclick="prepareGame('video')">開始挑戰</button>
             </div>
         </div>
 
@@ -679,12 +679,12 @@ include 'db.php';
 <!-- 名字輸入彈窗 -->
 <div id="nameModal">
     <div class="name-modal-box">
-        <h3>請輸入你的暱稱</h3>
-        <p>以記錄你的挑戰成績</p>
+        <h3>👋 歡迎挑戰</h3>
+        <p>請輸入你的名字／綽號</p>
         <input type="text" id="playerNameInput" placeholder="請輸入暱稱" autocomplete="off">
         <div class="name-modal-buttons">
             <button class="name-modal-btn cancel" onclick="closeNameModal()">取消</button>
-            <button class="name-modal-btn confirm" onclick="savePlayerName()">確定</button>
+            <button class="name-modal-btn confirm" onclick="confirmPlayerName()">確定</button>
         </div>
     </div>
 </div>
@@ -885,45 +885,50 @@ const videoBank = [
 ];
 
 // ==========================
-// 4. 全域遊戲狀態
-// 紀錄目前模式、題目、分數、頁籤、玩家暱稱
+// 全域遊戲狀態
 // ==========================
-let currentMode='', currentQuestions=[], currentVideo=null, currentQIndex=0, currentScore=0, currentTab='choice';
-let playerName = ''; // 新增全域變數儲存玩家暱稱
+let currentMode = '', currentQuestions = [], currentVideo = null;
+let currentQIndex = 0, currentScore = 0, currentTab = 'choice';
+let playerName = ''; // 儲存玩家暱稱
 
 // ==========================
-// 5. 名字彈窗控制
+// 名字彈窗控制
 // ==========================
-// 修改：開啟彈窗時傳入遊戲模式
-function openNameModal(mode){
-    playSound('click');
-    currentMode = mode; // 先儲存使用者選擇的模式
+function openNameModal(){
     document.getElementById('nameModal').style.display='flex';
     document.getElementById('playerNameInput').focus();
+    document.getElementById('playerNameInput').value = '';
 }
-
 function closeNameModal(){
     document.getElementById('nameModal').style.display='none';
-    currentMode = ''; // 使用者取消，清空模式
 }
 
-function savePlayerName(){
-    let name=document.getElementById('playerNameInput').value.trim();
-    if(!name){alert('請輸入名字');return;}
-    playerName = name; // 儲存玩家暱稱到全域變數
-    closeNameModal(); 
-    startGame(currentMode); // 儲存名字後直接開始遊戲
+// 確認名字 → 直接開始遊戲
+function confirmPlayerName(){
+    let name = document.getElementById('playerNameInput').value.trim();
+    if(!name){
+        alert('請輸入名字');
+        return;
+    }
+    playerName = name;
+    closeNameModal();
+    startGameAfterName(); // 輸入完直接開始
 }
 
 // ==========================
-// 6. 工具函式
-// 陣列亂序（洗牌）
+// 工具函式
 // ==========================
-function shuffleArray(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function shuffleArray(a){
+    const b=[...a];
+    for(let i=b.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [b[i],b[j]]=[b[j],b[i]];
+    }
+    return b;
+}
 
 // ==========================
-// 7. 畫面切換
-// 隱藏所有畫面，只顯示指定畫面
+// 畫面切換
 // ==========================
 function showScreen(id){
     document.getElementById('homeScreen').style.display = 'none';
@@ -934,7 +939,7 @@ function showScreen(id){
 }
 
 // ==========================
-// 8. 返回首頁
+// 返回首頁
 // ==========================
 function backToHub() {
     playSound('click');
@@ -942,58 +947,55 @@ function backToHub() {
 }
 
 // ==========================
-// 9. 開始遊戲
-// 依模式選擇題庫、隨機抽題、初始化
+// 【新流程】點擊開始 → 先輸入名字
 // ==========================
-function startGame(mode){
-    playSound('click'); 
-    currentMode=mode; 
-    currentQIndex=0; 
-    currentScore=0; 
-    currentVideo=null;
+function prepareGame(mode){
+    playSound('click');
+    currentMode = mode; // 先記住模式
+    openNameModal();   // 彈輸入框
+}
 
-    // 選擇題模式
-    if(mode==='choice')currentQuestions=shuffleArray(choiceBank).slice(0,5);
-    // 是非題模式
-    else if(mode==='tf')currentQuestions=shuffleArray(tfBank).slice(0,5);
-    // 影片模式
-    else if(mode==='video'){
-        currentVideo=shuffleArray(videoBank)[0];
+// ==========================
+// 輸入名字後 → 真正開始遊戲
+// ==========================
+function startGameAfterName(){
+    currentQIndex = 0;
+    currentScore = 0;
+    currentVideo = null;
+
+    if(currentMode==='choice'){
+        currentQuestions = shuffleArray(choiceBank).slice(0,5);
+    } else if(currentMode==='tf'){
+        currentQuestions = shuffleArray(tfBank).slice(0,5);
+    } else if(currentMode==='video'){
+        currentVideo = shuffleArray(videoBank)[0];
         currentQuestions = shuffleArray(currentVideo.questions).slice(0,2);
     }
-    // 顯示總題數
-    document.getElementById('totalQ').textContent=currentQuestions.length;
-    // 切換到遊戲畫面
-    showScreen('gameScreen'); 
+
+    document.getElementById('totalQ').textContent = currentQuestions.length;
+    showScreen('gameScreen');
     showQuestion();
 }
 
 // ==========================
-// 10. 顯示單題
-// 渲染題目、選項、進度條、影片
+// 顯示題目
 // ==========================
 function showQuestion(){
-    const q=currentQuestions[currentQIndex];
-    // 更新題號、分數、進度條
-    document.getElementById('currentQ').textContent=currentQIndex+1;
-    document.getElementById('currentScore').textContent=currentScore;
-    document.getElementById('progressFill').style.width=(currentQIndex/currentQuestions.length*100)+'%';
-    // 題目文字
-    document.getElementById('questionText').textContent=q.q;
-    // 隱藏解析
+    const q = currentQuestions[currentQIndex];
+    document.getElementById('currentQ').textContent = currentQIndex+1;
+    document.getElementById('currentScore').textContent = currentScore;
+    document.getElementById('progressFill').style.width = (currentQIndex/currentQuestions.length*100)+'%';
+    document.getElementById('questionText').textContent = q.q;
     document.getElementById('explanationBox').classList.remove('show');
 
-    // 取得影片相關元素
-    const vc=document.getElementById('videoContainer');
-    const vst=document.getElementById('videoSourceText');
+    const vc = document.getElementById('videoContainer');
+    const vst = document.getElementById('videoSourceText');
     
-    // 如果是影片模式，載入 YouTube 嵌入影片
     if(currentMode==='video'&&currentVideo){
         vc.style.display='block';
         vst.style.display='block';
-        vst.textContent=currentVideo.source;
+        vst.textContent = currentVideo.source;
         const ytFrame = document.getElementById('youtubeFrame');
-        // 嵌入 URL 加入 enablejsapi=1，提升相容性
         ytFrame.src = `https://www.youtube.com/embed/${currentVideo.youtubeId}?enablejsapi=1`;
     }else{
         vc.style.display='none';
@@ -1002,48 +1004,53 @@ function showQuestion(){
         ytFrame.src = "";
     }
 
-    // 產生選項按鈕
-    const g=document.getElementById('optionsGrid');g.innerHTML='';
-    // 是非題
+    const g = document.getElementById('optionsGrid');
+    g.innerHTML = '';
+
     if(currentMode==='tf'){
-        const t=document.createElement('button');t.className='option-btn-new';t.textContent='⭕正確';t.onclick=()=>selectAnswer(true);g.appendChild(t);
-        const f=document.createElement('button');f.className='option-btn-new';f.textContent='❌錯誤';f.onclick=()=>selectAnswer(false);g.appendChild(f);
+        const t = document.createElement('button');
+        t.className = 'option-btn-new';
+        t.textContent = '⭕正確';
+        t.onclick = ()=>selectAnswer(true);
+        g.appendChild(t);
+        
+        const f = document.createElement('button');
+        f.className = 'option-btn-new';
+        f.textContent = '❌錯誤';
+        f.onclick = ()=>selectAnswer(false);
+        g.appendChild(f);
     }else{
-        // 選擇題
         q.options.forEach((o,i)=>{
-            const b=document.createElement('button');
-            b.className='option-btn-new';
-            b.textContent=o;
-            b.onclick=()=>selectAnswer(i);
+            const b = document.createElement('button');
+            b.className = 'option-btn-new';
+            b.textContent = o;
+            b.onclick = ()=>selectAnswer(i);
             g.appendChild(b);
         });
     }
 }
 
 // ==========================
-// 11. 選擇答案
-// 判斷對錯、顯示顏色、播放音效、計分
+// 選擇答案
 // ==========================
 function selectAnswer(s){
-    const q=currentQuestions[currentQIndex];
-    const btns=document.querySelectorAll('.option-btn-new');
-    // 禁用所有按鈕
+    const q = currentQuestions[currentQIndex];
+    const btns = document.querySelectorAll('.option-btn-new');
     btns.forEach(b=>b.disabled=true);
-    let c=false;
-    // 每題分數（最後一題補滿100）
-    let p=Math.floor(100/currentQuestions.length);
-    if(currentQIndex===currentQuestions.length-1)p=100-(p*(currentQuestions.length-1));
+    let c = false;
+    let p = Math.floor(100/currentQuestions.length);
+    if(currentQIndex === currentQuestions.length-1){
+        p = 100 - (p*(currentQuestions.length-1));
+    }
     
-    // 記錄使用者答案
-    q.userSelected=s; 
-    q.isCorrect=(s===q.ans);
-    
-    // 是非題判斷
+    q.userSelected = s;
+    q.isCorrect = (s === q.ans);
+
     if(currentMode==='tf'){
-        c=s===q.ans;
+        c = s === q.ans;
         if(c){
             btns[s?0:1].classList.add('correct');
-            currentScore+=p;
+            currentScore += p;
             playSound('correct');
         }else{
             btns[s?0:1].classList.add('wrong');
@@ -1051,11 +1058,10 @@ function selectAnswer(s){
             playSound('wrong');
         }
     }else{
-        // 選擇題判斷
-        c=s===q.ans;
+        c = s === q.ans;
         if(c){
             btns[s].classList.add('correct');
-            currentScore+=p;
+            currentScore += p;
             playSound('correct');
         }else{
             btns[s].classList.add('wrong');
@@ -1064,87 +1070,86 @@ function selectAnswer(s){
         }
     }
 
-    // 顯示解析
-    document.getElementById('explanationText').textContent=q.exp;
+    document.getElementById('explanationText').textContent = q.exp;
     document.getElementById('explanationBox').classList.add('show');
     
-    // 延遲2.5秒後進入下一題
     setTimeout(()=>{
         currentQIndex++;
-        currentQIndex<currentQuestions.length?showQuestion():showResult();
+        currentQIndex < currentQuestions.length ? showQuestion() : showResult();
     },2500);
 }
 
 // ==========================
-// 12. 顯示結果
-// 計算最終分數、評級、儲存成績
+// 顯示結果 + 自動存檔
 // ==========================
 function showResult(){
     playSound('click');
     showScreen('resultScreen');
-    document.getElementById('resultScore').textContent=currentScore+'/100分';
-    const p=currentScore/100;
+    document.getElementById('resultScore').textContent = currentScore+'/100分';
+    const p = currentScore/100;
     let i,t,d;
-    // 依分數給評價
+    
     if(p>=0.9){i='🏆';t='超級達人';d='你太強了!';}
     else if(p>=0.7){i='🌟';t='很棒';d='知識扎實!';}
     else if(p>=0.5){i='🌱';t='不錯';d='繼續加油!';}
     else{i='📚';t='再加油';d='多學習!';}
     
-    document.getElementById('resultIcon').textContent=i;
-    document.getElementById('resultTitle').textContent=t;
-    document.getElementById('resultDesc').textContent=d;
+    document.getElementById('resultIcon').textContent = i;
+    document.getElementById('resultTitle').textContent = t;
+    document.getElementById('resultDesc').textContent = d;
     
-    // 遊戲結束後，直接使用之前儲存的 playerName 儲存成績
+    // 直接存檔，不用再輸名字
     autoSaveScore(playerName);
     saveDetailedRecord(playerName);
 }
 
 // ==========================
-// 13. 重新遊戲
+// 重新遊戲
 // ==========================
-function restartGame(){playSound('click');startGame(currentMode);}
+function restartGame(){
+    playSound('click');
+    prepareGame(currentMode);
+}
 
 // ==========================
-// 14. 排行榜功能
-// 讀取、儲存、排序、顯示排行榜
+// 排行榜功能
 // ==========================
 function getLB(m){return JSON.parse(localStorage.getItem(`sdg12_leaderboard_${m}`))||[];}
 function setLB(m,d){localStorage.setItem(`sdg12_leaderboard_${m}`,JSON.stringify(d));}
 
-// 自動儲存分數到排行榜
 function autoSaveScore(n){
-    const lb=getLB(currentMode);
-    const i=lb.findIndex(x=>x.name===n);
-    // 同名最高分覆蓋
+    const lb = getLB(currentMode);
+    const i = lb.findIndex(x=>x.name===n);
     if(i!==-1){
-        if(currentScore>lb[i].score)lb[i]={name:n,score:currentScore,time:new Date().toLocaleString()};
+        if(currentScore>lb[i].score) lb[i]={name:n, score:currentScore, time:new Date().toLocaleString()};
     }else{
-        // 新增玩家
-        lb.push({name:n,score:currentScore,time:new Date().toLocaleString()});
+        lb.push({name:n, score:currentScore, time:new Date().toLocaleString()});
     }
-    // 排序 + 最多存100筆
     lb.sort((a,b)=>b.score-a.score);
-    setLB(currentMode,lb.slice(0,100));
+    setLB(currentMode, lb.slice(0,100));
 }
 
-// 顯示排行榜頁面
-function showLeaderboard(){playSound('click');showScreen('leaderboardScreen');switchTab(currentTab||'choice');}
+function showLeaderboard(){
+    playSound('click');
+    showScreen('leaderboardScreen');
+    switchTab(currentTab||'choice');
+}
 
-// 切換排行榜標籤
 function switchTab(m){
-    currentTab=m;
-    // 切換標籤樣式
+    currentTab = m;
     document.querySelectorAll('.leaderboard-tab').forEach(t=>t.classList.remove('active'));
-    [...document.querySelectorAll('.leaderboard-tab')].find(t=>t.textContent.includes(m==='choice'?'永續大會考':m==='tf'?'迷思快閃賽':'時光放映室')).classList.add('active');
+    [...document.querySelectorAll('.leaderboard-tab')].find(t=>t.textContent.includes(
+        m==='choice'?'永續大會考':m==='tf'?'迷思快閃賽':'時光放映室'
+    )).classList.add('active');
     
-    // 取得該模式排行榜
-    const lb=getLB(m);
-    const l=document.getElementById('leaderboardList');
-    if(!lb.length){l.innerHTML='<div style="text-align:center;padding:40px;">尚無紀錄</div>';return;}
+    const lb = getLB(m);
+    const l = document.getElementById('leaderboardList');
+    if(!lb.length){
+        l.innerHTML='<div style="text-align:center;padding:40px;">尚無紀錄</div>';
+        return;
+    }
     
-    // 渲染前10名
-    l.innerHTML=lb.slice(0,10).map((it,idx)=>`
+    l.innerHTML = lb.slice(0,10).map((it,idx)=>`
         <div class="leaderboard-item">
             <div class="rank-badge ${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-other'}">${idx+1}</div>
             <div class="leaderboard-info"><div class="leaderboard-name">${it.name}</div><div style="font-size:13px;color:#555;">${it.time}</div></div>
@@ -1154,20 +1159,18 @@ function switchTab(m){
 }
 
 // ==========================
-// 15. 儲存詳細答題紀錄
-// 記錄每一題答對答錯、答案、解析
+// 儲存詳細紀錄
 // ==========================
 function saveDetailedRecord(n){
-    const r=JSON.parse(localStorage.getItem('sdg12DetailedRecords'))||[];
-    // 整理每一題紀錄
-    const det=currentQuestions.map((q,idx)=>{
+    const r = JSON.parse(localStorage.getItem('sdg12DetailedRecords'))||[];
+    const det = currentQuestions.map((q,idx)=>{
         let ua,ca;
         if(currentMode==='tf'){
-            ua=q.userSelected?'⭕正確':'❌錯誤';
-            ca=q.ans?'⭕正確':'❌錯誤';
+            ua = q.userSelected?'⭕正確':'❌錯誤';
+            ca = q.ans?'⭕正確':'❌錯誤';
         }else{
-            ua=q.options[q.userSelected]||'未答';
-            ca=q.options[q.ans];
+            ua = q.options[q.userSelected]||'未答';
+            ca = q.options[q.ans];
         }
         return{
             num:idx+1,
@@ -1178,9 +1181,7 @@ function saveDetailedRecord(n){
             exp:q.exp
         };
     });
-    // 統計正確題數
-    const cor=det.filter(x=>x.cor).length;
-    // 加入紀錄
+    const cor = det.filter(x=>x.cor).length;
     r.unshift({
         id:Date.now(),
         name:n,
@@ -1192,7 +1193,6 @@ function saveDetailedRecord(n){
         det:det,
         time:new Date().toLocaleString()
     });
-    // 最多存500筆
     localStorage.setItem('sdg12DetailedRecords',JSON.stringify(r.slice(0,500)));
 }
 </script>
