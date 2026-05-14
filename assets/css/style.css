@@ -6,46 +6,36 @@
 
 :root {
     --sdg12-gold: #C49A3A;
-    --sdg12-gold-light: #E8C872;
+    --sdg12-gold-light: #E4CB65;
     --sdg12-gold-dark: #8B6914;
     --sdg12-green: #5D8A66;
-    --sdg12-green-light: #A8D5BA;
-    --bg: #FDFBF7;
-    --bg-soft: #F5F0E6;
-    --white: #FFFFFF;
-    --text: #3D3426;
-    --text-light: #7A6F5E;
-    --border: #E5D9C8;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --shadow-strong: rgba(0, 0, 0, 0.15);
-}
-
-html, body {
-    width: 100%;
-    overflow-x: hidden;
+    --sdg12-green-light: #7AA885;
+    --text: #2A2A2A;
+    --text-light: #555555;
+    --border: #E5E5E5;
+    --shadow: rgba(0,0,0,0.07);
+    --shadow-strong: rgba(0,0,0,0.12);
 }
 
 body {
-    font-family: "Noto Sans TC", "微軟正黑體", "PingFang TC", sans-serif;
-    background-color: var(--bg);
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #FCFBF8;
     color: var(--text);
-    line-height: 1.8;
+    line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(196, 154, 58, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(93, 138, 102, 0.05) 0%, transparent 50%);
 }
 
 .container {
-    max-width: 1280px;
-    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 120px 40px 40px;
+    padding: 0 20px;
+    padding-top: 100px; /* 导航栏高度补偿 */
     flex: 1;
 }
 
+/* 动画 */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
@@ -62,11 +52,11 @@ body {
 }
 
 .fade-in {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 0.6s ease forwards;
     opacity: 0;
 }
 
-/* 頂部導覽列 */
+/* 导航栏 */
 .navbar {
     width: 100%;
     height: 80px;
@@ -160,7 +150,7 @@ body {
     width: 100%;
 }
 
-/* 按鈕樣式 */
+/* 按钮样式 */
 .btn-primary {
     background: linear-gradient(135deg, var(--sdg12-gold) 0%, var(--sdg12-gold-light) 100%);
     color: white;
@@ -219,7 +209,7 @@ body {
     box-shadow: 0 6px 18px rgba(217, 83, 79, 0.35);
 }
 
-/* 首頁英雄區塊 */
+/* 首页Hero区块 */
 .hero { 
     min-height: 85vh; 
     display: flex; 
@@ -266,7 +256,7 @@ body {
     width: 100%;
 }
 
-/* 標題區塊 */
+/* 标题区块 */
 .section-title-block { 
     text-align: center; 
     margin: 80px 0 60px; 
@@ -282,7 +272,7 @@ body {
     color: var(--text-light); 
 }
 
-/* 3欄卡片網格 */
+/* 3栏卡片网格 */
 .why-grid { 
     display: grid; 
     grid-template-columns: repeat(3, 1fr); 
@@ -391,7 +381,7 @@ body {
     text-align: center;
 }
 
-/* 會員首頁樣式 */
+/* 用户中心/课程卡片 */
 .hero-section {
     background: linear-gradient(135deg, rgba(196, 154, 58, 0.08) 0%, rgba(93, 138, 102, 0.08) 100%);
     border-radius: 36px;
@@ -449,7 +439,7 @@ body {
 
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 25px;
     margin-bottom: 40px;
 }
@@ -549,34 +539,7 @@ body {
     background: linear-gradient(135deg, #8B6914 0%, #A67C1A 100%);
 }
 
-/* 管理員區塊 */
-.admin-section {
-    background: white;
-    border-radius: 32px;
-    padding: 60px;
-    box-shadow: 0 12px 45px var(--shadow);
-    position: relative;
-    overflow: hidden;
-}
-.admin-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background: linear-gradient(90deg, var(--sdg12-gold), var(--sdg12-green));
-}
-.admin-title {
-    font-size: 34px;
-    margin-bottom: 35px;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-/* 卡片通用樣式 */
+/* 通用卡片样式 */
 .card {
     background: white;
     border-radius: 28px;
@@ -603,7 +566,7 @@ body {
     animation: float 4s ease-in-out infinite;
 }
 
-/* 表格樣式 */
+/* 表格样式 */
 .table-wrapper {
     background: white;
     border-radius: 24px;
@@ -638,7 +601,7 @@ tr:hover td {
     background-color: #FFF8EB;
 }
 
-/* 彈窗樣式 */
+/* 弹窗样式 */
 .modal {
     display: none;
     position: fixed;
@@ -737,7 +700,7 @@ tr:hover td {
     justify-content: center;
 }
 
-/* 底部導航 & 頁尾 */
+/* 底部导航 & 页脚 */
 .bottom-nav {
     max-width: 1280px;
     width: 100%;
@@ -779,7 +742,7 @@ tr:hover td {
     margin-top: auto;
 }
 
-/* 響應式設計 */
+/* 响应式适配 */
 @media (max-width: 1024px) {
     .why-grid, .features-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -814,6 +777,7 @@ tr:hover td {
     .hero-section {
         min-height: 60vh;
         padding: 40px 30px;
+        margin: 100px 0 40px;
     }
     .hero-subtitle {
         font-size: 17px;
@@ -841,8 +805,10 @@ tr:hover td {
     .container { padding: 40px 25px 40px; }
     .platform-title { font-size: 19px; }
     .card, .course-card { padding: 35px 25px; }
-    .search-box { width: 100%; flex-direction: column; }
-    .search-input { width: 100%; }
     table { font-size: 14px; }
     th, td { padding: 12px 8px; }
+    .btn-primary, .btn-secondary {
+        padding: 14px 30px;
+        font-size: 16px;
+    }
 }
