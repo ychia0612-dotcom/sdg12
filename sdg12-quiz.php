@@ -1,6 +1,66 @@
 <?php
 // 引入資料庫連線
 include 'db.php';
+
+// 處理成績提交 (AJAX 方式)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_score') {
+    header('Content-Type: application/json');
+    
+    $nickname = trim($_POST['nickname']);
+    $mode = trim($_POST['mode']);
+    $score = intval($_POST['score']);
+    $total_questions = intval($_POST['total_questions']);
+    $correct_answers = intval($_POST['correct_answers']);
+    
+    if (!empty($nickname) && $total_questions > 0) {
+        // 準備SQL語句防止SQL注入
+        $stmt = $conn->prepare("INSERT INTO quiz_scores (nickname, mode, score, total_questions, correct_answers) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssiii", $nickname, $mode, $score, $total_questions, $correct_answers);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => '成績已成功儲存到數據庫']);
+        } else {
+            echo json_encode(['success' => false, 'message' => '數據庫儲存失敗: ' . $stmt->error]);
+        }
+        
+        $stmt->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => '參數不完整']);
+    }
+    
+    $conn->close();
+    exit;
+}
+
+// 取得排行榜 (AJAX 方式)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'get_leaderboard') {
+    header('Content-Type: application/json');
+    
+    $mode = trim($_POST['mode']);
+    $leaderboard = [];
+    
+    $stmt = $conn->prepare("SELECT nickname, score, correct_answers, total_questions, created_at 
+                           FROM quiz_scores 
+                           WHERE mode = ?
+                           ORDER BY score DESC, created_at ASC 
+                           LIMIT 10");
+    $stmt->bind_param("s", $mode);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $leaderboard[] = $row;
+    }
+    
+    $stmt->close();
+    $conn->close();
+    
+    echo json_encode($leaderboard);
+    exit;
+}
+
+// 預設頁面顯示
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -11,7 +71,7 @@ include 'db.php';
     <meta charset="UTF-8">
     <!-- 行動裝置適應 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDG12 知識測驗</title>
+    <title>SDG12 永續實踐家測驗</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         /* 網站最外層容器，限制最大寬度並置中 */
@@ -532,6 +592,23 @@ include 'db.php';
             background: #C49A3A;
         }
 
+        /* 同步狀態提示 */
+        .sync-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .sync-success {
+            background: rgba(93, 138, 102, 0.1);
+            color: #5D8A66;
+        }
+        .sync-error {
+            background: rgba(217, 83, 79, 0.1);
+            color: #D9534F;
+        }
+
         /* 手機版響應式：900px以下變成1欄 */
         @media (max-width: 900px) {
             .mode-grid { grid-template-columns: 1fr; }
@@ -588,7 +665,7 @@ include 'db.php';
         <!-- 功能按鈕 -->
         <div style="display:flex; flex-direction:column; gap:15px; justify-content:center; align-items:center; margin-bottom:40px;">
             <button class="btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
-            <button class="btn-secondary" onclick="location.href='user.php'">返回</button>
+            <button class="btn-secondary" onclick="location.href='user.php'">返回學習中心</button>
         </div>
     </div>
 
@@ -642,8 +719,11 @@ include 'db.php';
             <div class="result-title-new" id="resultTitle">測驗完成！</div>
             <div class="result-score-new" id="resultScore">0 / 100 分</div>
             <div class="result-desc-new" id="resultDesc"></div>
+            
+            <!-- 同步狀態提示 -->
+            <div id="syncStatus" class="sync-status" style="display:none;"></div>
 
-            <div style="display:flex; gap:15px; justify-content:center;">
+            <div style="display:flex; gap:15px; justify-content:center; margin-top:20px;">
                 <button class="btn-primary" onclick="restartGame()">再測一次</button>
                 <button class="btn-secondary" onclick="backToHub()">返回</button>
             </div>
@@ -667,7 +747,9 @@ include 'db.php';
             </div>
 
             <!-- 排行榜列表 -->
-            <div class="leaderboard-list" id="leaderboardList"></div>
+            <div class="leaderboard-list" id="leaderboardList">
+                <div style="text-align:center;padding:40px;">載入中...</div>
+            </div>
             
             <div style="text-align:center; margin-top: 40px;">
                 <button class="btn-secondary" onclick="backToHub()">返回</button>
@@ -681,7 +763,7 @@ include 'db.php';
     <div class="name-modal-box">
         <h3>👋 歡迎挑戰</h3>
         <p>請輸入你的名字／綽號</p>
-        <input type="text" id="playerNameInput" placeholder="請輸入暱稱" autocomplete="off">
+        <input type="text" id="playerNameInput" placeholder="請輸入暱稱" autocomplete="off" maxlength="20">
         <div class="name-modal-buttons">
             <button class="name-modal-btn cancel" onclick="closeNameModal()">取消</button>
             <button class="name-modal-btn confirm" onclick="confirmPlayerName()">確定</button>
@@ -695,7 +777,7 @@ include 'db.php';
 <script>
 // ==========================
 // 1. 每月自動清除排行榜
-// 功能：每個月1號自動清空排行榜資料
+// 功能：每個月1號自動清空本地排行榜資料
 // ==========================
 function autoClearLeaderboardMonthly() {
     const now = new Date();
@@ -956,7 +1038,7 @@ function prepareGame(mode){
 }
 
 // ==========================
-// 輸入名字後 → 真正開始遊戲（已修正題目載入問題）
+// 輸入名字後 → 真正開始遊戲
 // ==========================
 function startGameAfterName(){
     currentQIndex = 0;
@@ -964,7 +1046,7 @@ function startGameAfterName(){
     currentVideo = null;
     currentQuestions = []; // 清空舊題目
 
-    // 【修正點】：正確載入題目陣列
+    // 正確載入題目陣列
     if(currentMode==='choice'){
         currentQuestions = shuffleArray(choiceBank).slice(0,5);
     } else if(currentMode==='tf'){
@@ -974,7 +1056,7 @@ function startGameAfterName(){
         currentQuestions = shuffleArray(currentVideo.questions).slice(0,2);
     }
 
-    // 【修正點】：確保總題數正確
+    // 確保總題數正確
     document.getElementById('totalQ').textContent = currentQuestions.length;
     showScreen('gameScreen');
     showQuestion();
@@ -984,7 +1066,7 @@ function startGameAfterName(){
 // 顯示題目
 // ==========================
 function showQuestion(){
-    // 【防呆】：如果題目陣列為空，直接返回首頁
+    // 防呆：如果題目陣列為空，直接返回首頁
     if (!currentQuestions || currentQuestions.length === 0) {
         alert('題目載入失敗，請返回首頁重新開始！');
         backToHub();
@@ -1090,7 +1172,7 @@ function selectAnswer(s){
 }
 
 // ==========================
-// 顯示結果 + 自動存檔
+// 顯示結果 + 自動存檔到本地和數據庫
 // ==========================
 function showResult(){
     playSound('click');
@@ -1108,9 +1190,48 @@ function showResult(){
     document.getElementById('resultTitle').textContent = t;
     document.getElementById('resultDesc').textContent = d;
     
-    // 直接存檔，不用再輸名字
+    // 計算答對題數
+    const correctAnswers = currentQuestions.filter(q => q.isCorrect).length;
+    const totalQuestions = currentQuestions.length;
+    
+    // 保存到本地
     autoSaveScore(playerName);
     saveDetailedRecord(playerName);
+    
+    // 保存到數據庫
+    saveScoreToDatabase(playerName, currentMode, currentScore, totalQuestions, correctAnswers);
+}
+
+// ==========================
+// 保存成績到數據庫 (AJAX)
+// ==========================
+function saveScoreToDatabase(nickname, mode, score, total_questions, correct_answers) {
+    const syncStatus = document.getElementById('syncStatus');
+    syncStatus.style.display = 'block';
+    syncStatus.className = 'sync-status';
+    syncStatus.textContent = '正在同步成績到服務器...';
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=save_score&nickname=${encodeURIComponent(nickname)}&mode=${encodeURIComponent(mode)}&score=${score}&total_questions=${total_questions}&correct_answers=${correct_answers}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            syncStatus.className = 'sync-status sync-success';
+            syncStatus.textContent = '✅ 成績已成功同步到服務器！';
+        } else {
+            syncStatus.className = 'sync-status sync-error';
+            syncStatus.textContent = '⚠️ 服務器同步失敗：' + data.message + '（成績已保存到本地）';
+        }
+    })
+    .catch(error => {
+        syncStatus.className = 'sync-status sync-error';
+        syncStatus.textContent = '⚠️ 網絡錯誤，成績已保存到本地，稍後會自動重試';
+    });
 }
 
 // ==========================
@@ -1152,20 +1273,81 @@ function switchTab(m){
         m==='choice'?'永續大會考':m==='tf'?'迷思快閃賽':'時光放映室'
     )).classList.add('active');
     
-    const lb = getLB(m);
-    const l = document.getElementById('leaderboardList');
-    if(!lb.length){
-        l.innerHTML='<div style="text-align:center;padding:40px;">尚無紀錄</div>';
-        return;
-    }
+    // 從數據庫獲取排行榜
+    fetchLeaderboardFromDatabase(m);
+}
+
+// ==========================
+// 從數據庫獲取排行榜 (AJAX)
+// ==========================
+function fetchLeaderboardFromDatabase(mode) {
+    const leaderboardList = document.getElementById('leaderboardList');
+    leaderboardList.innerHTML = '<div style="text-align:center;padding:40px;">載入中...</div>';
     
-    l.innerHTML = lb.slice(0,10).map((it,idx)=>`
-        <div class="leaderboard-item">
-            <div class="rank-badge ${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-other'}">${idx+1}</div>
-            <div class="leaderboard-info"><div class="leaderboard-name">${it.name}</div><div style="font-size:13px;color:#555;">${it.time}</div></div>
-            <div class="leaderboard-score">${it.score}分</div>
-        </div>
-    `).join('');
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=get_leaderboard&mode=${encodeURIComponent(mode)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.length === 0) {
+            leaderboardList.innerHTML = '<div style="text-align:center;padding:40px;">尚無紀錄，成為第一個永續達人吧！</div>';
+            return;
+        }
+        
+        leaderboardList.innerHTML = data.map((it,idx)=>`
+            <div class="leaderboard-item">
+                <div class="rank-badge ${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-other'}">${idx+1}</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">${escapeHtml(it.nickname)}</div>
+                    <div style="font-size:13px;color:#555;">${formatDate(it.created_at)}</div>
+                </div>
+                <div class="leaderboard-score">${it.score}分</div>
+            </div>
+        `).join('');
+    })
+    .catch(error => {
+        // 如果數據庫獲取失敗，使用本地數據
+        const lb = getLB(mode);
+        if(!lb.length){
+            leaderboardList.innerHTML='<div style="text-align:center;padding:40px;">尚無紀錄</div>';
+            return;
+        }
+        
+        leaderboardList.innerHTML = lb.slice(0,10).map((it,idx)=>`
+            <div class="leaderboard-item">
+                <div class="rank-badge ${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-other'}">${idx+1}</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">${escapeHtml(it.name)}</div>
+                    <div style="font-size:13px;color:#555;">${it.time}</div>
+                </div>
+                <div class="leaderboard-score">${it.score}分</div>
+            </div>
+        `).join('');
+    });
+}
+
+// ==========================
+// 工具函式：HTML轉義和日期格式化
+// ==========================
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 // ==========================
@@ -1205,6 +1387,16 @@ function saveDetailedRecord(n){
     });
     localStorage.setItem('sdg12DetailedRecords',JSON.stringify(r.slice(0,500)));
 }
+
+// 頁面加載時初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 為名字輸入框添加Enter鍵提交
+    document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            confirmPlayerName();
+        }
+    });
+});
 </script>
 </body>
 </html>
