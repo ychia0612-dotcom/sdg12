@@ -620,13 +620,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             .mode-grid { grid-template-columns: 1fr; }
         }
         /* 手機版：768px以下縮小文字與間距 */
-        @media (max-width: 768px) {
-            .hero-section { padding: 40px 25px; min-height: 50vh; margin: 20px 0 40px; }
-            .hero-title { font-size: 36px; }
-            .hero-subtitle { font-size: 17px; }
-            .game-area-new { padding: 35px 25px; }
-            .question-text-new { font-size: 20px; }
-        }
+@media (max-width: 768px) {
+    .hero-section { padding: 40px 25px; min-height: 50vh; margin: 20px 0 40px; }
+    .hero-title { font-size: 36px; }
+    .hero-subtitle { font-size: 17px; }
+    .game-area-new { padding: 35px 25px; }
+    .question-text-new { font-size: 20px; }
+}
     </style>
 </head>
 <body>
