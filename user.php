@@ -281,7 +281,9 @@
             </div>
         </div>
     </div>
-
+<div class="section-block fade-in" style="animation-delay: 0.4s; text-align:center;">
+            <button class="btn-secondary" onclick="location.href='index.php'">返回</button>
+        </div>
     <?php include 'includes/footer.php'; ?>
 
 </body>
