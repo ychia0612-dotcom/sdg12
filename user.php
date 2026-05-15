@@ -113,7 +113,7 @@
             opacity: 0.3;
         }
         .divider-text {
-            font-size: 50px;
+            font-size: 40px;
             font-weight: 1000;
             color: #8B6914;
             white-space: nowrap;
