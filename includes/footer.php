@@ -16,7 +16,7 @@ $conn->close();
 <footer class="footer">
     <?php if ($show_visits): ?>
         <div style="width: 100%; text-align: center; margin-bottom: 15px; font-size: 16px; color: var(--text-light);">
-            🌐 網站總訪問人次：<?php echo number_format($total_visits); ?>
+            🌐 瀏覽數：<?php echo number_format($total_visits); ?>
         </div>
     <?php endif; ?>
     
