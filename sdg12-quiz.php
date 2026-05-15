@@ -768,7 +768,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <div id="nameModal">
     <div class="name-modal-box">
         <h3>👋 歡迎挑戰</h3>
-        <p>請輸入你的名字／綽號</p>
+        <p>請輸入你的暱稱</p>
         <input type="text" id="playerNameInput" placeholder="請輸入暱稱" autocomplete="off" maxlength="20">
         <div class="name-modal-buttons">
             <button class="name-modal-btn cancel" onclick="closeNameModal()">取消</button>
