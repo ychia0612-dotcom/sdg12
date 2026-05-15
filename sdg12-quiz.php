@@ -671,7 +671,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <!-- 功能按鈕 -->
         <div style="display:flex; flex-direction:column; gap:15px; justify-content:center; align-items:center; margin-bottom:40px;">
             <button class="btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
-            <button class="btn-secondary" onclick="location.href='user.php'">返回學習中心</button>
+            <button class="btn-secondary" onclick="location.href='user.php'">返回</button>
         </div>
     </div>
 
