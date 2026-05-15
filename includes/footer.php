@@ -15,11 +15,13 @@ $conn->close();
 
 <footer class="footer">
     <?php if ($show_visits): ?>
-        <div style="margin-bottom: 15px; font-size: 16px; color: var(--text-light);">
+        <div style="width: 100%; text-align: center; margin-bottom: 15px; font-size: 16px; color: var(--text-light);">
             🌐 網站總訪問人次：<?php echo number_format($total_visits); ?>
         </div>
     <?php endif; ?>
-    <div style="text-align: center; width: 100%;">
+    
+    <!-- 完美居中版 - 占满整行，在所有设备上都居中 -->
+    <div style="width: 100%; text-align: center; margin: 0; padding: 0;">
         © 2026 SDG12 永續生活家學習平台
     </div>
 </footer>
