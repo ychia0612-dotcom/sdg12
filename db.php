@@ -1,6 +1,6 @@
 <?php
 // 資料庫連線設定
-$url = "mysql://root:cwEMmpToTflDcBBUAqdceFAYlmEvPFxv@yamanote.proxy.rlwy.net:38208/railway";
+$url = "mysql://root:cOZEfxBBMSLoxhePqHoRplgfAbafAyok@mysql.railway.internal:3306/railway";
 
 // 解析 URL
 $db_info = parse_url($url);
