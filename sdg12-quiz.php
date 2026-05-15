@@ -259,17 +259,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
 
         /* 遊戲區域 */
-        .game-area-new {
+.game-area-new {
     background: white;
     border-radius: 32px;
     padding: 50px;
     box-shadow: 0 12px 45px rgba(0,0,0,0.07);
-    margin-bottom: 40px;
+    margin: 105px auto 40px auto; /* 增加頂部邊距，與導航欄分開 */
     max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-        /* 進度條外框 */
+}   /* 進度條外框 */
         .progress-bar-new {
             width: 100%;
             height: 12px;
