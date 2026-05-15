@@ -6,426 +6,629 @@
     <title>深入了解 SDG12</title>
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <style>
-        /* 網站最大寬度容器：置中、左右留白 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* 淡入動畫：讓區塊慢慢出現 */
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease forwards;
-        }
-        /* ======================================
-           動畫關鍵影格 @keyframes
-           統一放在前面，方便管理
-        ====================================== */
-        
-        /* 淡入 + 微微向上滑動 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 漂浮動畫：標題圖示微微上下浮動 */
-        @keyframes float {
-            0%   { transform: translateY(0px); }
-            50%  { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* ======================================
+    /* ======================================
            首頁大標題區 Hero Section
-           最上方的大標題、簡介、漸層背景
-        ====================================== */
+        <style>
+    /* 網站最大寬度容器：置中、左右留白 */
+    .container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 20px !important;
+    }
+
+    /* 淡入動畫：讓區塊慢慢出現 */
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.8s ease forwards;
+    }
+    /* ======================================
+       動畫關鍵影格 @keyframes
+       統一放在前面，方便管理
+    ====================================== */
+    
+    /* 淡入 + 微微向上滑動 */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 漂浮動畫：標題圖示微微上下浮動 */
+    @keyframes float {
+        0%   { transform: translateY(0px); }
+        50%  { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+    }
+
+    /* ======================================
+       首頁大標題區 Hero Section
+       最上方的大標題、簡介、漸層背景
+    ====================================== */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(196, 154, 58, 0.08) 0%, rgba(93, 138, 102, 0.08) 100%) !important;
+        border-radius: 36px !important;
+        min-height: 75vh !important; 
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 60px 40px !important;
+        margin: 70px 0 70px !important;
+        position: relative !important;
+        overflow: hidden !important;
+        border: 1px solid rgba(196, 154, 58, 0.15) !important;
+    }
+    .hero-icon {
+        font-size: 75px !important;
+        margin-bottom: 35px !important;
+        animation: float 4s ease-in-out infinite !important;  /* 循環漂浮 */
+    }
+    /* 標題文字 */
+    .hero-title {
+        font-size: 54px !important;
+        font-weight: 900 !important;
+        margin-bottom: 45px !important;
+        line-height: 1.3 !important;
+        background: linear-gradient(135deg, #C49A3A 0%, #E4CB65 50%, #5D8A66 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        text-align: center !important;
+    }
+
+    /* 副標題 */
+    .hero-subtitle {
+        font-size: 22px !important;
+        color: #555 !important;
+        max-width: 900px !important;
+        margin: 0 auto !important;
+        line-height: 2.4 !important;
+        text-align: center !important;
+    }
+
+    /* ======================================
+       內容區塊通用樣式
+       每個章節的標題、內文、間距
+    ====================================== */
+    .section-block {
+        margin-bottom: 90px !important;
+    }
+    .section-title {
+        font-size: 38px !important;
+        font-weight: 800 !important;
+        color: #2A2A2A !important;
+        margin-bottom: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 15px !important;
+    }
+    .section-desc {
+        font-size: 19px !important;
+        color: #555555 !important;
+        line-height: 2.2 !important;
+        margin-bottom: 50px !important;
+    }
+
+    /* ======================================
+       核心子目標卡片
+    ====================================== */
+    .goals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 30px !important;
+    }
+    .goal-card {
+        background: white !important;
+        border-radius: 26px !important;
+        padding: 40px !important;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.07) !important;
+        transition: all 0.3s ease !important;
+        border-left: 10px solid #E4CB65 !important;
+        word-break: break-word !important;
+    }
+    .goal-card:nth-child(even) {
+        border-left-color: #5D8A66 !important;
+    }
+    .goal-card:hover {
+        transform: translateY(-10px) !important;
+        box-shadow: 0 20px 55px rgba(0,0,0,0.12) !important;
+    }
+    .goal-card h4 {
+        font-size: 21px !important;
+        font-weight: 800 !important;
+        margin-bottom: 15px !important;
+        color: #2A2A2A !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+    }
+    .goal-card p {
+        color: #555555 !important;
+        line-height: 2 !important;
+        font-size: 16px !important;
+        word-break: break-word !important;
+    }
+
+    /* ======================================
+       全球現況數據卡片 (事實清單)
+    ====================================== */
+    .fact-horizontal-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        margin: 40px 0 !important;
+    }
+    .fact-horizontal-item {
+        background: white !important;
+        border-radius: 20px !important;
+        padding: 25px 30px !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 25px !important;
+        border-left: 6px solid #E4CB65 !important;
+        transition: all 0.3s ease !important;
+    }
+    /* 每個項目切換不同顏色 */
+    .fact-horizontal-item:nth-child(2) { border-left-color: #5D8A66 !important; }
+    .fact-horizontal-item:nth-child(3) { border-left-color: #8B6914 !important; }
+    .fact-horizontal-item:nth-child(4) { border-left-color: #5D8A66 !important; }
+    .fact-horizontal-item:nth-child(5) { border-left-color: #C49A3A !important; }
+    .fact-horizontal-item:hover {
+        transform: translateX(10px) !important;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1) !important;
+    }
+    .fact-horizontal-icon {
+        font-size: 40px !important;
+        flex-shrink: 0 !important;
+    }
+    .fact-horizontal-content {
+        flex: 1 !important;
+    }
+    .fact-horizontal-content h4 {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        color: #2A2A2A !important;
+        margin-bottom: 8px !important;
+    }
+    .fact-horizontal-content p {
+        font-size: 16px !important;
+        line-height: 1.7 !important;
+        color: #555555 !important;
+        margin: 0 !important;
+        word-break: break-word !important;
+    }
+
+    /* ======================================
+       與其他SDG關聯時間軸
+    ====================================== */
+    .sdg-relation-timeline {
+        position: relative !important;
+        padding-left: 30px !important;
+        margin: 40px 0 !important;
+    }
+    /* 中間垂直線 */
+    .sdg-relation-timeline::before {
+        content: '' !important;
+        position: absolute !important;
+        left: 10px !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        width: 4px !important;
+        background: linear-gradient(180deg, #E4CB65, #5D8A66) !important;
+        border-radius: 4px !important;
+    }
+    .relation-item-new {
+        background: white !important;
+        border-radius: 20px !important;
+        padding: 25px 30px !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+        position: relative !important;
+        transition: all 0.3s ease !important;
+        border: 1px solid rgba(196,154,58,0.1) !important;
+        word-break: break-word !important;
+    }
+    /* 左邊圓點 */
+    .relation-item-new::before {
+        content: '' !important;
+        position: absolute !important;
+        left: -38px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 20px !important;
+        height: 20px !important;
+        background: white !important;
+        border: 4px solid #E4CB65 !important;
+        border-radius: 50% !important;
+        z-index: 2 !important;
+    }
+    .relation-item-new:nth-child(even)::before {
+        border-color: #5D8A66 !important;
+    }
+    .relation-item-new:hover {
+        transform: translateX(10px) !important;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1) !important;
+        border-color: rgba(196,154,58,0.3) !important;
+    }
+    .relation-item-new strong {
+        font-size: 18px !important;
+        color: #C49A3A !important;
+        display: block !important;
+        margin-bottom: 6px !important;
+    }
+    .relation-item-new span {
+        font-size: 16px !important;
+        color: #2A2A2A !important;
+        line-height: 1.7 !important;
+    }
+
+    /* ======================================
+       3R 綠色行動卡片 Reduce Reuse Recycle
+    ====================================== */
+    .r-container {
+        display: grid !important;
+        grid-template-columns: repeat(3,1fr) !important;
+        gap: 30px !important;
+        margin: 20px 0 40px !important;
+    }
+    .r-card {
+        background: white !important;
+        border-radius: 28px !important;
+        padding: 45px 30px !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+        border-top: 8px solid #E4CB65 !important;
+        text-align: center !important;
+        transition: all 0.3s ease !important;
+        overflow: visible !important;
+        word-break: break-word !important;
+    }
+    .r-card:nth-child(2) { border-top-color: #5D8A66 !important; }
+    .r-card:nth-child(3) { border-top-color: #E4CB65 !important; }
+    .r-card:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+    }
+    .r-card h4 {
+        font-size: 26px !important;
+        font-weight: 800 !important;
+        margin-bottom: 20px !important;
+        color: #2A2A2A !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+    }
+    .r-card p {
+        font-size: 17px !important;
+        line-height: 2 !important;
+        color: #555555 !important;
+        margin: 0 !important;
+        word-break: break-word !important;
+    }
+
+    /* ======================================
+       日常永續實踐指南 (3大場景卡片)
+    ====================================== */
+    .practice-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 35px !important;
+    }
+    .practice-card {
+        background: white !important;
+        border-radius: 30px !important;
+        padding: 45px 35px !important;
+        box-shadow: 0 12px 45px rgba(0,0,0,0.07) !important;
+        transition: all 0.4s ease !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        height: 100% !important;
+        word-break: break-word !important;
+    }
+    .practice-card:hover {
+        transform: translateY(-12px) !important;
+        box-shadow: 0 25px 65px rgba(0,0,0,0.12) !important;
+    }
+    /* 卡片上方圓形圖示 */
+    .practice-icon {
+        width: 90px !important;
+        height: 90px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #E4CB65, #F0D78C) !important;
+        display: grid !important;
+        place-items: center !important;
+        font-size: 45px !important;
+        color: white !important;
+        margin-bottom: 30px !important;
+    }
+    .practice-card:nth-child(2) .practice-icon {
+        background: linear-gradient(135deg, #5D8A66, #7AA885) !important;
+    }
+    .practice-card:nth-child(3) .practice-icon {
+        background: linear-gradient(135deg, #8B6914, #A67C1A) !important;
+    }
+    .practice-card h4 {
+        font-size: 24px !important;
+        font-weight: 800 !important;
+        margin-bottom: 22px !important;
+        color: #2A2A2A !important;
+    }
+    .practice-card ul {
+        list-style: none !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .practice-card li {
+        padding: 12px 0 !important;
+        color: #555555 !important;
+        line-height: 1.8 !important;
+        font-size: 16px !important;
+        border-bottom: 1px dashed #E5E5E5 !important;
+    }
+    .practice-card li:last-child {
+        border-bottom: none !important;
+    }
+
+    /* ======================================
+       7天永續行動挑戰區
+    ====================================== */
+    .challenge-block {
+        background: linear-gradient(135deg, rgba(196, 154, 58, 0.12) 0%, rgba(93, 138, 102, 0.12) 100%) !important;
+        border-radius: 36px !important;
+        padding: 60px !important;
+        border: 1px solid rgba(196, 154, 58, 0.18) !important;
+        margin-bottom: 60px !important;
+    }
+    .challenge-title {
+        font-size: 34px !important;
+        font-weight: 800 !important;
+        text-align: center !important;
+        margin-bottom: 50px !important;
+        color: #C49A3A !important;
+    }
+    .challenge-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 25px !important;
+    }
+    .challenge-item {
+        background: white !important;
+        border-radius: 20px !important;
+        padding: 25px 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 18px !important;
+        transition: all 0.3s ease !important;
+        word-break: break-word !important;
+    }
+    .challenge-item:hover {
+        transform: translateX(15px) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.07) !important;
+    }
+    .challenge-check {
+        font-size: 28px !important;
+        color: #5D8A66 !important;
+        flex-shrink: 0 !important;
+    }
+    .challenge-item p {
+        font-weight: 600 !important;
+        color: #2A2A2A !important;
+        font-size: 17px !important;
+        margin: 0 !important;
+        line-height: 1.6 !important;
+    }
+
+    /* ======================================
+       底部按鈕樣式
+    ====================================== */
+    .btn-secondary {
+        padding: 15px 40px !important;
+        border-radius: 30px !important;
+        border: none !important;
+        background: #5D8A66 !important;
+        color: white !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .btn-secondary:hover {
+        background: #C49A3A !important;
+        transform: scale(1.05) !important;
+    }
+
+    /* ======================================
+       手機版響應式設計 (768px以下)
+       使用 !important 強制覆蓋所有其他規則
+    ====================================== */
+    @media only screen and (max-width: 768px) {
+        /* 容器內邊距調整 */
+        .container {
+            padding: 0 15px !important;
+        }
+
+        /* 英雄區調整 */
         .hero-section {
-            background: linear-gradient(135deg, rgba(196, 154, 58, 0.08) 0%, rgba(93, 138, 102, 0.08) 100%);
-            border-radius: 36px;
-            min-height: 75vh; 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 40px;
-            margin: 70px 0 70px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(196, 154, 58, 0.15);
+            min-height: 60vh !important;
+            padding: 40px 20px !important;
+            margin: 40px 0 50px !important;
+            border-radius: 24px !important;
         }
         .hero-icon {
-            font-size: 75px;
-            margin-bottom: 35px;
-            animation: float 4s ease-in-out infinite;  /* 循環漂浮 */
+            font-size: 50px !important;
+            margin-bottom: 25px !important;
         }
-        /* 標題文字 */
         .hero-title {
-            font-size: 54px;
-            font-weight: 900;
-            margin-bottom: 45px;
-            line-height: 1.3;
-            background: linear-gradient(135deg, #C49A3A 0%, #E4CB65 50%, #5D8A66 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
+            font-size: 32px !important;
+            margin-bottom: 30px !important;
         }
-
-        /* 副標題 */
         .hero-subtitle {
-            font-size: 22px;
-            color: #555;
-            max-width: 900px;
-            margin: 0 auto;
-            line-height: 2.4;
-            text-align: center;
+            font-size: 16px !important;
+            line-height: 2 !important;
         }
 
-        /* ======================================
-           內容區塊通用樣式
-           每個章節的標題、內文、間距
-        ====================================== */
+        /* 通用區塊調整 */
         .section-block {
-            margin-bottom: 90px;
+            margin-bottom: 60px !important;
         }
         .section-title {
-            font-size: 38px;
-            font-weight: 800;
-            color: #2A2A2A;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            font-size: 26px !important;
+            margin-bottom: 20px !important;
+            gap: 10px !important;
         }
         .section-desc {
-            font-size: 19px;
-            color: #555555;
-            line-height: 2.2;
-            margin-bottom: 50px;
+            font-size: 16px !important;
+            line-height: 2 !important;
+            margin-bottom: 30px !important;
         }
 
-        /* ======================================
-           核心子目標卡片
-        ====================================== */
+        /* 核心子目標卡片：強制1列！ */
         .goals-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
         }
         .goal-card {
-            background: white;
-            border-radius: 26px;
-            padding: 40px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.07);
-            transition: all 0.3s ease;
-            border-left: 10px solid #E4CB65;
-        }
-        .goal-card:nth-child(even) {
-            border-left-color: #5D8A66;
-        }
-        .goal-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 55px rgba(0,0,0,0.12);
+            padding: 25px 20px !important;
+            border-left-width: 6px !important;
         }
         .goal-card h4 {
-            font-size: 21px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            color: #2A2A2A;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-size: 18px !important;
         }
         .goal-card p {
-            color: #555555;
-            line-height: 2;
-            font-size: 16px;
+            font-size: 15px !important;
         }
 
-        /* ======================================
-           全球現況數據卡片 (事實清單)
-        ====================================== */
-        .fact-horizontal-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 40px 0;
-        }
+        /* 全球現況卡片調整 */
         .fact-horizontal-item {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 30px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            border-left: 6px solid #E4CB65;
-            transition: all 0.3s ease;
-        }
-        /* 每個項目切換不同顏色 */
-        .fact-horizontal-item:nth-child(2) { border-left-color: #5D8A66; }
-        .fact-horizontal-item:nth-child(3) { border-left-color: #8B6914; }
-        .fact-horizontal-item:nth-child(4) { border-left-color: #5D8A66; }
-        .fact-horizontal-item:nth-child(5) { border-left-color: #C49A3A; }
-        .fact-horizontal-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 20px !important;
+            gap: 15px !important;
+            flex-direction: column !important;
+            text-align: center !important;
         }
         .fact-horizontal-icon {
-            font-size: 40px;
-            flex-shrink: 0;
-        }
-        .fact-horizontal-content {
-            flex: 1;
+            font-size: 35px !important;
         }
         .fact-horizontal-content h4 {
-            font-size: 20px;
-            font-weight: 800;
-            color: #2A2A2A;
-            margin-bottom: 8px;
+            font-size: 18px !important;
         }
         .fact-horizontal-content p {
-            font-size: 16px;
-            line-height: 1.7;
-            color: #555555;
-            margin: 0;
+            font-size: 15px !important;
         }
 
-        /* ======================================
-           與其他SDG關聯時間軸
-        ====================================== */
-        .sdg-relation-timeline {
-            position: relative;
-            padding-left: 30px;
-            margin: 40px 0;
-        }
-        /* 中間垂直線 */
-        .sdg-relation-timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(180deg, #E4CB65, #5D8A66);
-            border-radius: 4px;
-        }
-        .relation-item-new {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-            position: relative;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(196,154,58,0.1);
-        }
-        /* 左邊圓點 */
-        .relation-item-new::before {
-            content: '';
-            position: absolute;
-            left: -38px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            background: white;
-            border: 4px solid #E4CB65;
-            border-radius: 50%;
-            z-index: 2;
-        }
-        .relation-item-new:nth-child(even)::before {
-            border-color: #5D8A66;
-        }
-        .relation-item-new:hover {
-            transform: translateX(10px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            border-color: rgba(196,154,58,0.3);
-        }
-        .relation-item-new strong {
-            font-size: 18px;
-            color: #C49A3A;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .relation-item-new span {
-            font-size: 16px;
-            color: #2A2A2A;
-            line-height: 1.7;
-        }
-
-        /* ======================================
-           3R 綠色行動卡片 Reduce Reuse Recycle
-        ====================================== */
+        /* 3R卡片：強制1列！ */
         .r-container {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);  /* 一排3個 */
-            gap: 30px;
-            margin: 20px 0 40px;
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
         }
         .r-card {
-            background: white;
-            border-radius: 28px;
-            padding: 45px 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            border-top: 8px solid #E4CB65;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        .r-card:nth-child(2) { border-top-color: #5D8A66; }
-        .r-card:nth-child(3) { border-top-color: #E4CB65; }
-        .r-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            padding: 30px 25px !important;
+            border-top-width: 6px !important;
         }
         .r-card h4 {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            color: #2A2A2A;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            font-size: 22px !important;
+            margin-bottom: 15px !important;
         }
         .r-card p {
-            font-size: 17px;
-            line-height: 2;
-            color: #555555;
-            margin: 0;
+            font-size: 16px !important;
+            line-height: 1.8 !important;
         }
 
-        /* ======================================
-           日常永續實踐指南 (3大場景卡片)
-        ====================================== */
+        /* 日常實踐卡片：強制1列！ */
         .practice-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 35px;
+            grid-template-columns: 1fr !important;
+            gap: 25px !important;
         }
         .practice-card {
-            background: white;
-            border-radius: 30px;
-            padding: 45px 35px;
-            box-shadow: 0 12px 45px rgba(0,0,0,0.07);
-            transition: all 0.4s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            height: 100%;
+            padding: 35px 25px !important;
         }
-        .practice-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 25px 65px rgba(0,0,0,0.12);
-        }
-        /* 卡片上方圓形圖示 */
         .practice-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #E4CB65, #F0D78C);
-            display: grid;
-            place-items: center;
-            font-size: 45px;
-            color: white;
-            margin-bottom: 30px;
-        }
-        .practice-card:nth-child(2) .practice-icon {
-            background: linear-gradient(135deg, #5D8A66, #7AA885);
-        }
-        .practice-card:nth-child(3) .practice-icon {
-            background: linear-gradient(135deg, #8B6914, #A67C1A);
+            width: 70px !important;
+            height: 70px !important;
+            font-size: 35px !important;
+            margin-bottom: 20px !important;
         }
         .practice-card h4 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 22px;
-            color: #2A2A2A;
-        }
-        .practice-card ul {
-            list-style: none;
-            width: 100%;
+            font-size: 22px !important;
+            margin-bottom: 18px !important;
         }
         .practice-card li {
-            padding: 12px 0;
-            color: #555555;
-            line-height: 1.8;
-            font-size: 16px;
-            border-bottom: 1px dashed #E5E5E5;
-        }
-        .practice-card li:last-child {
-            border-bottom: none;
+            font-size: 15px !important;
         }
 
-        /* ======================================
-           7天永續行動挑戰區
-        ====================================== */
+        /* 7天挑戰區：強制1列！ */
         .challenge-block {
-            background: linear-gradient(135deg, rgba(196, 154, 58, 0.12) 0%, rgba(93, 138, 102, 0.12) 100%);
-            border-radius: 36px;
-            padding: 60px;
-            border: 1px solid rgba(196, 154, 58, 0.18);
-            margin-bottom: 60px;
+            padding: 40px 20px !important;
+            border-radius: 24px !important;
+            margin-bottom: 40px !important;
         }
         .challenge-title {
-            font-size: 34px;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 50px;
-            color: #C49A3A;
+            font-size: 26px !important;
+            margin-bottom: 30px !important;
         }
         .challenge-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
         }
         .challenge-item {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 30px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            transition: all 0.3s ease;
-        }
-        .challenge-item:hover {
-            transform: translateX(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+            padding: 20px !important;
+            gap: 15px !important;
         }
         .challenge-check {
-            font-size: 28px;
-            color: #5D8A66;
+            font-size: 24px !important;
         }
         .challenge-item p {
-            font-weight: 600;
-            color: #2A2A2A;
-            font-size: 17px;
-            margin: 0;
-            line-height: 1.6;
+            font-size: 16px !important;
         }
 
-        /* ======================================
-           底部按鈕樣式
-        ====================================== */
+        /* 底部按鈕調整 */
         .btn-secondary {
-            padding: 15px 40px;
-            border-radius: 30px;
-            border: none;
-            background: #5D8A66;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 12px 30px !important;
+            font-size: 16px !important;
         }
-        .btn-secondary:hover {
-            background: #C49A3A;
-            transform: scale(1.05);
+    }
+
+    /* ======================================
+       超小屏幕優化 (480px以下)
+       針對更小的手機屏幕進一步優化
+    ====================================== */
+    @media only screen and (max-width: 480px) {
+        .r-card {
+            padding: 25px 20px !important;
         }
-    </style>
+        .r-card h4 {
+            font-size: 20px !important;
+        }
+        .r-card p {
+            font-size: 15px !important;
+        }
+        
+        .challenge-item {
+            padding: 18px 15px !important;
+            gap: 12px !important;
+        }
+        .challenge-check {
+            font-size: 22px !important;
+        }
+        .challenge-item p {
+            font-size: 15px !important;
+        }
+
+        .goal-card {
+            padding: 20px 18px !important;
+        }
+        .goal-card h4 {
+            font-size: 17px !important;
+        }
+        .goal-card p {
+            font-size: 14px !important;
+        }
+    }
+</style>
 </head>
 
 <!-- ===================== 網頁HTML結構 ===================== -->
