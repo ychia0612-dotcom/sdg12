@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>深入了解 SDG12</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
-    /* ======================================
-           首頁大標題區 Hero Section
-        <style>
+   <style>
     /* 網站最大寬度容器：置中、左右留白 */
     .container {
         max-width: 1200px !important;
