@@ -19,17 +19,6 @@
             opacity: 0;
             animation: fadeIn 0.8s ease forwards;
         }
-
-        /* 頁尾樣式 */
-        .footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #555555;
-            background: #fff;
-            border-top: 1px solid #E5E5E5;
-            margin-top: 50px;
-        }
-
         /* ======================================
            動畫關鍵影格 @keyframes
            統一放在前面，方便管理
